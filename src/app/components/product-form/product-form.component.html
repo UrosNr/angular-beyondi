@@ -1,0 +1,32 @@
+<div class="container w-50">
+  <h2>{{ isNewProduct ? 'Add New Product' : 'Edit Product' }}</h2>
+  <form (ngSubmit)="submitForm()" #productForm="ngForm">
+    <div class="mb-3">
+      <label for="productName" class="form-label">Product Name</label>
+      <input type="text" class="form-control" id="productName" name="productName" [(ngModel)]="product.name" required maxlength="32">
+      <div *ngIf="productForm.controls['productName']?.invalid && (productForm.controls['productName']?.dirty || productForm.controls['productName']?.touched)">
+        <small *ngIf="productForm.controls['productName']?.errors?.['required']">Product name is required.</small>
+        <small *ngIf="productForm.controls['productName']?.errors?.['maxlength']">Product name cannot be longer than 32 characters.</small>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="productPrice" class="form-label">Price</label>
+      <input type="number" class="form-control" id="productPrice" name="productPrice" [(ngModel)]="product.price" required min="1">
+      <div *ngIf="productForm.controls['productPrice']?.invalid && (productForm.controls['productPrice']?.dirty || productForm.controls['productPrice']?.touched)">
+        <small *ngIf="productForm.controls['productPrice']?.errors?.['required']">Price is required.</small>
+        <small *ngIf="productForm.controls['productPrice']?.errors?.['min']">Price must be greater than 0.</small>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="productDescription" class="form-label">Description</label>
+      <textarea class="form-control" id="productDescription" name="productDescription" [(ngModel)]="product.description" maxlength="160"></textarea>
+      <div *ngIf="productForm.controls['productDescription']?.invalid && (productForm.controls['productDescription']?.dirty || productForm.controls['productDescription']?.touched)">
+        <small *ngIf="productForm.controls['productDescription']?.errors?.['maxlength']">Description cannot be longer than 160 characters.</small>
+      </div>
+    </div>
+    <div class="d-flex">
+      <button type="submit" [disabled]="productForm.invalid" class="btn btn-primary">{{ isNewProduct ? 'Add Product' : 'Save Changes' }}</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+</div>

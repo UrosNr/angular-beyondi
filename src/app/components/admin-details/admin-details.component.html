@@ -1,0 +1,36 @@
+<div class="container mt-5 w-50">
+  <h2>Change Account Details</h2>
+  <form [formGroup]="adminDetailsForm" (ngSubmit)="updateAdminDetails()">
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        formControlName="email"
+      />
+      <div *ngIf="adminDetailsForm.get('email')?.invalid && (adminDetailsForm.get('email')?.dirty || adminDetailsForm.get('email')?.touched)">
+        <small *ngIf="adminDetailsForm.get('email')?.errors?.['required']">Email is required.</small>
+        <small *ngIf="adminDetailsForm.get('email')?.errors?.['email']">Email must be a valid email address.</small>
+
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input
+        type="password"
+        class="form-control"
+        id="password"
+        formControlName="password"
+      />
+      <div *ngIf="adminDetailsForm.get('password')?.invalid && (adminDetailsForm.get('password')?.dirty || adminDetailsForm.get('password')?.touched)">
+        <small *ngIf="adminDetailsForm.get('password')?.errors?.['required']">Password is required.</small>
+        <small *ngIf="adminDetailsForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters long.</small>
+        <small *ngIf="adminDetailsForm.get('password')?.errors?.['pattern']">
+          Password must include uppercase, lowercase, 2 special characters, and at least 3 numbers.
+        </small>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="adminDetailsForm.invalid">Save Changes</button>
+  </form>
+</div>

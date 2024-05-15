@@ -1,0 +1,10 @@
+<div class="container mt-5 w-50">
+  <h2>Product List</h2>
+  <div class="list-group">
+    <a *ngFor="let product of products" class="list-group-item list-group-item-action d-flex" [routerLink]="['/products', product.id]">
+      <h5 class="mb-1">{{ product.name }}</h5>
+      <small class="ms-auto"><b> {{ product.price | currency }}</b></small>
+    </a>
+  </div>
+  <button type="button" class="btn btn-success my-3" (click)="addProduct()">Add Product</button>
+</div>
