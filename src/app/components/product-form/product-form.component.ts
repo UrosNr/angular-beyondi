@@ -43,7 +43,7 @@ export class ProductFormComponent implements OnInit {
           this.router.navigate(['/products']);
         })
         .catch((error) => {
-          this.toastr.error(error);
+          this.toastr.error(error.message);
         });
     } else {
       this.productService
@@ -53,7 +53,7 @@ export class ProductFormComponent implements OnInit {
           this.router.navigate(['/products', this.product.id]);
         })
         .catch((error) => {
-          this.toastr.error(error);
+          this.toastr.error(error.message);
         });
     }
   }

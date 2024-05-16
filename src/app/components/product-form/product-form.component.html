@@ -11,7 +11,7 @@
     </div>
     <div class="mb-3">
       <label for="productPrice" class="form-label">Price</label>
-      <input type="number" class="form-control" id="productPrice" name="productPrice" [(ngModel)]="product.price" required min="1">
+      <input type="number" class="form-control" id="productPrice" name="productPrice" [(ngModel)]="product.price" required min="0.01">
       <div *ngIf="productForm.controls['productPrice']?.invalid && (productForm.controls['productPrice']?.dirty || productForm.controls['productPrice']?.touched)">
         <small *ngIf="productForm.controls['productPrice']?.errors?.['required']">Price is required.</small>
         <small *ngIf="productForm.controls['productPrice']?.errors?.['min']">Price must be greater than 0.</small>

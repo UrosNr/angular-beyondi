@@ -12,30 +12,26 @@ import { UserService } from '../../services/user.service';
 })
 export class AdminListComponent implements OnInit {
   admins: User[] = [];
-  private firestore = inject(AngularFirestore);
   private router = inject(Router);
   private toastr = inject(ToastrService);
   private userService = inject(UserService);
 
   ngOnInit(): void {
-    this.firestore.collection<User>('users', ref => ref.where('isAdmin', '==', true))
-      .valueChanges({ idField: 'uid' })
-      .subscribe(admins => {
-        this.admins = admins;
-      });
+    this.userService.getAdmins().subscribe(admins => {
+      this.admins = admins;
+    });
   }
 
   deleteAdmin(uid: string): void {
-    this.firestore.collection('users').doc(uid).delete().then(() => {
+    this.userService.deleteUser(uid).then(() => {
       this.toastr.success('Admin deleted successfully');
     }).catch(error => {
-      this.toastr.error('Error deleting admin');
+      this.toastr.error(error.message);
     });
   }
 
   addAdmin(): void{
     this.router.navigate(['/add-admin']);
   }
-
 
 }

@@ -17,7 +17,6 @@ export class AddAdminComponent {
 
   private fb = inject(FormBuilder);
   private auth = inject(AngularFireAuth);
-  private firestore = inject(AngularFirestore);
   private router = inject(Router);
   private toastr = inject(ToastrService);
   private userService = inject(UserService);
@@ -63,7 +62,7 @@ export class AddAdminComponent {
               };
 
               // Store the user data in Firestore
-              return this.firestore.collection('users').doc(user.uid).set(user);
+              return this.userService.addUser(user);
             })
             .then(() => {
               // Re-authenticate the original user

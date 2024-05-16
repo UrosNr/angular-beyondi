@@ -1,9 +1,7 @@
-// services/product.service.ts
-import { Injectable, inject } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { Observable, from } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, Subject, from, takeUntil } from 'rxjs';
 import { User } from '../models/user';
 import { Product } from '../models/product';
 import { UserService } from './user.service';
@@ -11,27 +9,28 @@ import { UserService } from './user.service';
 @Injectable({
   providedIn: 'root'
 })
-export class ProductService {
+export class ProductService implements OnDestroy {
   private user: User | null = null;
   private firestore = inject(AngularFirestore);
   private auth = inject(AngularFireAuth);
   private userService = inject(UserService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     this.auth.authState.pipe(
-      switchMap(user => {
-        if (user) {
-          return this.firestore.collection('users').doc(user.uid).valueChanges().pipe(
-            map((userData: any) => {
-              return { uid: user.uid, email: user.email || '', isAdmin: userData?.isAdmin || false } as User;
-            })
-          );
-        } else {
-          return [null];
-        }
-      })
+      takeUntil(this.destroy$)
     ).subscribe(user => {
-      this.user = user;
+      if (user) {
+        this.userService.getUser(user.uid).subscribe(userData => {
+          if (userData) {
+            this.user = userData;
+          } else {
+            this.user = null;
+          }
+        });
+      } else {
+        this.user = null;
+      }
     });
   }
 
@@ -62,5 +61,10 @@ export class ProductService {
     } else {
       return Promise.reject('Unauthorized');
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

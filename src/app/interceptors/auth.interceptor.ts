@@ -35,7 +35,6 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     if (error.status === 401 || error.status === 403) {
-      // Handle unauthorized errors
       return throwError(() => new Error('Unauthorized access'));
     }
     return throwError(() => error);

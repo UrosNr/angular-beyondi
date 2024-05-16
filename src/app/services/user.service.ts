@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 import { User } from '../models/user';
 
@@ -16,6 +15,11 @@ export class UserService {
 
   getUsers(): Observable<User[]> {
     return this.usersCollection.valueChanges({ idField: 'uid' });
+  }
+
+  getAdmins(): Observable<User[]> {
+    return this.firestore.collection<User>('users', ref => ref.where('isAdmin', '==', true))
+      .valueChanges({ idField: 'uid' });
   }
 
   getUser(uid: string): Observable<User | undefined> {

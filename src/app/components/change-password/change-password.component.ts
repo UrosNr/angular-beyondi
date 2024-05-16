@@ -5,6 +5,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../services/user.service';
+import { User } from '../../models/user';
 
 @Component({
   selector: 'app-change-password',
@@ -14,7 +15,6 @@ import { UserService } from '../../services/user.service';
 export class ChangePasswordComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AngularFireAuth);
-  private firestore = inject(AngularFirestore);
   private router = inject(Router);
   private toastr = inject(ToastrService);
   private userService = inject(UserService);
@@ -41,12 +41,15 @@ export class ChangePasswordComponent {
       this.auth.currentUser.then(user => {
         if (user) {
           user.updatePassword(newPassword).then(() => {
-            // Update the user's passwordChanged status in Firestore
-            this.firestore.collection('users').doc(user.uid).update({ passwordChanged: true }).then(() => {
+            // Update the user's passwordChanged status using UserService
+            this.userService.updateUser({ uid: user.uid, passwordChanged: true } as User).then(() => {
               this.router.navigate(['/']);
+              this.toastr.success('Password updated successfully');
+            }).catch(error => {
+              this.toastr.error(error.message);
             });
           }).catch(error => {
-            this.toastr.error('Error updating password');
+            this.toastr.error(error.message);
           });
         }
       });

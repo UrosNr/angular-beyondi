@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { User } from '../../models/user';
 import { UserService } from '../../services/user.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-admin-details',
@@ -15,7 +16,6 @@ import { UserService } from '../../services/user.service';
 export class AdminDetailsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private auth = inject(AngularFireAuth);
-  private firestore = inject(AngularFirestore);
   private router = inject(Router);
   private toastr = inject(ToastrService);
   private route = inject(ActivatedRoute);
@@ -46,7 +46,7 @@ export class AdminDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.adminUid = params['uid'];
-      this.firestore.collection('users').doc(this.adminUid).valueChanges().subscribe((admin: any) => {
+      this.userService.getUser(this.adminUid).subscribe((admin: any) => {
         if (admin) {
           this.adminDetailsForm.patchValue({
             email: admin.email
@@ -58,36 +58,35 @@ export class AdminDetailsComponent implements OnInit {
 
   async updateAdminDetails(): Promise<void> {
     if (this.adminDetailsForm.invalid) {
-        return;
+      return;
     }
 
     const newEmail = this.adminDetailsForm.get('email')?.value;
     const newPassword = this.adminDetailsForm.get('password')?.value;
 
     try {
-        await this.auth.currentUser.then(async user => {
-            if (user) {
-                await user.updateEmail(newEmail);
-                await user.updatePassword(newPassword);
-                this.toastr.success('Admin details updated successfully');
-                this.router.navigate(['/']);
-            }
-        });
+      const user = await this.auth.currentUser;
+      if (user) {
+        await user.updateEmail(newEmail);
+        await user.updatePassword(newPassword);
 
-        const userDoc = this.firestore.collection<User>('users').doc(this.adminUid);
-        const userSnapshot = await userDoc.ref.get();
-        const user = userSnapshot.data() as User | undefined;
-
-        if (user) {
-            user.email = newEmail;
-            await userDoc.update(user);
-            this.toastr.success('User details updated successfully');
+        const adminUser: User | undefined = await firstValueFrom(this.userService.getUser(this.adminUid));
+        if (adminUser) {
+          adminUser.email = newEmail;
+          await this.userService.updateUser(adminUser);
+          this.toastr.success('Admin details updated successfully');
+          this.router.navigate(['/']);
         } else {
-            this.toastr.error('User not found');
+          this.toastr.error('Admin user not found');
         }
+      }
     } catch (error) {
-        // this.toastr.error(error);
+      if (error instanceof Error) {
+        this.toastr.error(error.message);
+      } else {
+        this.toastr.error('An unknown error occurred');
+      }
     }
-}
+  }
 
 }

@@ -1,11 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from '../services/auth.service';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { User } from '../models/user';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { UserService } from '../services/user.service';
 
 @Component({
@@ -20,10 +18,8 @@ export class RegisterComponent {
 
   private fb = inject(FormBuilder);
   private auth = inject(AngularFireAuth);
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private toastr = inject(ToastrService);
-  private firestore = inject(AngularFirestore);
   private userService = inject(UserService);
 
   constructor() {
@@ -46,17 +42,13 @@ export class RegisterComponent {
     });
   }
 
-  ngOnInit() {}
-
-  async onSubmit() {
+  async onSubmit(): Promise<void> {
     if (this.registrationForm.valid) {
         const { email, password } = this.registrationForm.value;
 
         try {
-            // Create user in authentication
             const userCredential = await this.auth.createUserWithEmailAndPassword(email, password);
 
-            // Create user object for Firestore
             const newUser: User = {
                 uid: userCredential.user?.uid || '',
                 email: email,
@@ -64,17 +56,16 @@ export class RegisterComponent {
                 passwordChanged: true
             };
 
-            // Insert user into Firestore
-            await this.firestore.collection<User>('users').doc(newUser.uid).set(newUser);
+            await this.userService.addUser(newUser);
 
-            // Redirect after successful registration
             this.router.navigate(['/']);
-
-            // Show success message
             this.toastr.success('User registered successfully');
         } catch (error) {
-            // Handle error
-            // this.toastr.error(error.message);
+          if (error instanceof Error) {
+            this.toastr.error(error.message);
+          } else {
+            this.toastr.error('An unknown error occurred');
+          }
         }
     }
 }

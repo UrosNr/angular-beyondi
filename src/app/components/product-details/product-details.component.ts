@@ -32,7 +32,7 @@ export class ProductDetailsComponent implements OnDestroy {
         this.product = product;
       });
     });
-    this.userSubscription = this.authService.getUser().subscribe(user => {
+    this.userSubscription = this.authService.getCurrentUser().subscribe(user => {
       this.user = user;
     });
   }
@@ -48,7 +48,7 @@ export class ProductDetailsComponent implements OnDestroy {
         this.toastr.success('Successfully deleted product');
         this.router.navigate(['/products']);
       }).catch(error => {
-        this.toastr.error('Error deleting product');
+        this.toastr.error(error.message);
       });
     }
   }
